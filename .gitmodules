@@ -1,0 +1,8 @@
+[submodule "vista-portal-backend"]
+	path = vista-portal-backend
+	url = git@github.com:Nerevarishe/vista-portal-backend.git
+	branch = master
+[submodule "vista-portal-frontend"]
+	path = vista-portal-frontend
+	url = git@github.com:Nerevarishe/vista-portal-frontend.git
+	branch = master
