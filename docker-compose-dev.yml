@@ -5,12 +5,8 @@ services:
     networks:
       - vista-portal-network
     restart: always
-    #environment:
-    #  MONGO_INITDB_ROOT_USERNAME: "vista-portal"
-    #  MONGO_INITDB_ROOT_PASSWORD: "rfh98LKJh4a0x9u4Ld893mak211j"
 
   backend:
-    build: ./vista-portal-backend
     image: nerevarishe/vista-portal-backend:latest
     volumes:
       - uploads:/srv/www/vista-portal-backend/static/uploads
@@ -19,12 +15,8 @@ services:
     networks:
       - vista-portal-network
     restart: always
-    #environment:
-    #  MONGO_INITDB_ROOT_USERNAME: "vista-portal"
-    #  MONGO_INITDB_ROOT_PASSWORD: "rfh98LKJh4a0x9u4Ld893mak211j"
-      
+
   frontend:
-    build: ./vista-portal-frontend
     image: nerevarishe/vista-portal-frontend:latest
     ports:
       - 8080:80
