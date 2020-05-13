@@ -6,3 +6,7 @@
 	path = vista-portal-frontend
 	url = git@github.com:Nerevarishe/vista-portal-frontend.git
 	branch = master
+[submodule "vista-portal-cronjobs"]
+	path = vista-portal-cronjobs
+	url = git@github.com:Nerevarishe/vista-portal-cronjobs.git
+	branch = master

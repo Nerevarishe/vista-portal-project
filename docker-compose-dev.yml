@@ -1,31 +1,96 @@
 version: '3.8'
 services:
+  dev-backend-image:
+    build:
+      context: ./vista-portal-backend
+      dockerfile: Dockerfile-dev-first-stage
+    image: nerevarishe/vista-portal-backend:dev
+  
+  dev-frontend-image:
+    build:
+      context: ./vista-portal-frontend
+      dockerfile: Dockerfile-dev-first-stage
+    image: nerevarishe/vista-portal-frontend:dev
+  
   db:
     image: mongo:latest
+    environment:
+      - TZ=${TZ}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+      - MONGODB_USERNAME=${MONGODB_USERNAME}
+      - MONGODB_PASSWORD=${MONGODB_PASSWORD}
+    volumes:
+      - db-data:/data/db
+      - ./mongodb-start-scripts:/docker-entrypoint-initdb.d
+    ports:
+      - 27017:27017
     networks:
       - vista-portal-network
     restart: always
 
   backend:
+    build:
+      context: ./vista-portal-backend
+      dockerfile: Dockerfile-dev-second-stage
     image: nerevarishe/vista-portal-backend:latest
+    environment:
+      - TZ=${TZ}
+      - MONGODB_DB=${MONGO_INITDB_DATABASE}
+      - MONGODB_HOST=${MONGODB_HOST}
+      - MONGODB_USERNAME=${MONGODB_USERNAME}
+      - MONGODB_PASSWORD=${MONGODB_PASSWORD}
     volumes:
-      - uploads:/srv/www/vista-portal-backend/static/uploads
+      - backend-uploads:/srv/www/vista-portal-backend/static/uploads
     ports:
       - 5000:5000
     networks:
       - vista-portal-network
     restart: always
+    depends_on:
+      - dev-backend-image
+      - db
 
   frontend:
+    build:
+      context: ./vista-portal-frontend
+      dockerfile: Dockerfile-dev-second-stage
     image: nerevarishe/vista-portal-frontend:latest
+    environment:
+      - TZ=${TZ}
     ports:
       - 8080:80
     networks:
       - vista-portal-network
     restart: always
+    depends_on:
+      - dev-frontend-image
+      - db
+
+  cron:
+    build:
+      context: ./vista-portal-cronjobs
+      dockerfile: Dockerfile-dev
+    image: nerevarishe/vista-portal-cronjobs:latest
+    environment:
+      - TZ=${TZ}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - backend-uploads:/mnt/backend-uploads
+      - ./backups:/opt/scripts/backups
+    networks:
+      - vista-portal-network
+    restart: always
+    depends_on:
+      - db
+      - backend
 
 volumes:
-  uploads:
+  db-data:
+  backend-uploads:
 
 networks:
   vista-portal-network:
